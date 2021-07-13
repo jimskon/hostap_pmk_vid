@@ -1,0 +1,12 @@
+Package: eapoltest-dbgsym
+Source: wpa
+Version: 2:2.9.0-21
+Auto-Built-Package: debug-symbols
+Architecture: armhf
+Maintainer: Debian wpasupplicant Maintainers <wpa@packages.debian.org>
+Installed-Size: 3578
+Depends: eapoltest (= 2:2.9.0-21)
+Section: debug
+Priority: optional
+Description: debug symbols for eapoltest
+Build-Ids: a349fed3f06f7de2bae423097a4916cda6e00abb

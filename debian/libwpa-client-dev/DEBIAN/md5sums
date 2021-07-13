@@ -1,0 +1,6 @@
+dc902dc27bfd2a5763624fda61615d52  usr/include/wpa_ctrl.h
+cafc4dd60bd1481a94669fc9d55aea66  usr/lib/arm-linux-gnueabihf/libwpa_client.a
+50d614943eac816119a6970bbe2ab169  usr/share/doc/libwpa-client-dev/NEWS.Debian.gz
+aca786c0e971cf150849bf7e6b4e4c46  usr/share/doc/libwpa-client-dev/changelog.Debian.gz
+41d023b0dbb04a2533d0f416f4bc319c  usr/share/doc/libwpa-client-dev/copyright
+db288dd3b077ed61cc9f8438b04fa4f3  usr/share/doc/libwpa-client-dev/examples/libwpa_test.c

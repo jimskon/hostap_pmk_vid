@@ -1,0 +1,11 @@
+eapoltest-dbgsym_2.9.0-21_armhf.deb debug optional automatic=yes
+eapoltest_2.9.0-21_armhf.deb net optional
+hostapd-dbgsym_2.9.0-21_armhf.deb debug optional automatic=yes
+hostapd_2.9.0-21_armhf.deb net optional
+libwpa-client-dev_2.9.0-21_armhf.deb libdevel optional
+wpa_2.9.0-21_armhf.buildinfo net optional
+wpagui-dbgsym_2.9.0-21_armhf.deb debug optional automatic=yes
+wpagui_2.9.0-21_armhf.deb net optional
+wpasupplicant-dbgsym_2.9.0-21_armhf.deb debug optional automatic=yes
+wpasupplicant-udeb_2.9.0-21_armhf.udeb debian-installer standard
+wpasupplicant_2.9.0-21_armhf.deb net optional

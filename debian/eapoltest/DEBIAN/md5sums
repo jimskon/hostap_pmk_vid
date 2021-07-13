@@ -1,0 +1,6 @@
+0e15dbbc13e228550f5cf368b6a78954  usr/bin/eapol_test
+50d614943eac816119a6970bbe2ab169  usr/share/doc/eapoltest/NEWS.Debian.gz
+aca786c0e971cf150849bf7e6b4e4c46  usr/share/doc/eapoltest/changelog.Debian.gz
+41d023b0dbb04a2533d0f416f4bc319c  usr/share/doc/eapoltest/copyright
+0be84ece4df4da5df0495aaa66a2be0b  usr/share/lintian/overrides/eapoltest
+115f73ed0493913fe3932cad91c09101  usr/share/man/man8/eapol_test.8.gz
