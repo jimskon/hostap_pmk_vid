@@ -7,6 +7,10 @@
  */
 
 #include "utils/includes.h"
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
 
 #include "utils/common.h"
 #include "utils/eloop.h"
@@ -177,6 +181,50 @@ static inline int wpa_auth_start_ampe(struct wpa_authenticator *wpa_auth,
 }
 #endif /* CONFIG_MESH */
 
+/* RGNets - send vid to bridge */
+#define BR_PORT 9000
+#define BR_ADDRESS "localhost"
+
+void wpa_send_vid(const u8 *addr, uint32_t vid) {
+    int sockfd, n;
+    struct sockaddr_in serv_addr;
+    struct hostent *server;
+    struct vid_mess aVid_mess;
+    char br_address[] = BR_ADDRESS;
+    int portno = BR_PORT;
+    server = gethostbyname(br_address);
+    if (server == NULL) {
+        fprintf(stderr,"RGNets ERROR, can't find bridge: %s\n",br_address);
+        return;
+    }
+    
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    bcopy((char *)server->h_addr,
+         (char *)&serv_addr.sin_addr.s_addr,
+         server->h_length);
+
+    serv_addr.sin_port = htons(portno);
+
+      sockfd = socket(AF_INET, SOCK_STREAM, 0);
+      if (sockfd < 0) {
+        fprintf(stderr,"RGNets ERROR opening bridge socket");
+	return;
+      }
+      if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
+	fprintf(stderr,"ERROR connecting");
+	return;
+      }
+      bzero((void *)&aVid_mess,sizeof(struct vid_mess));
+      aVid_mess.be_vid = vid;
+      memcpy(aVid_mess.be_haddr,addr,6);
+
+      n = write(sockfd,&aVid_mess,sizeof(struct vid_mess));
+      if (n < 0) {
+        error("RGNets ERROR writing to bridge socket"); 
+      }
+      close(sockfd);
+}  
 
 int wpa_auth_for_each_sta(struct wpa_authenticator *wpa_auth,
 			  int (*cb)(struct wpa_state_machine *sm, void *ctx),
@@ -2941,10 +2989,11 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 	char * time_str = ctime(&mytime);
 	time_str[strlen(time_str)-1] = '\0';
 	printf("Current Time : %s\n", time_str);
-	// RGNets output conneciton log
-	// New to put name in config file
+	// RGNets output connection log
 	char filename[]="/tmp/connections.log";
 	FILE *f;
+	// Send vid to bridge
+	wpa_send_vid(sm->addr,vlan_id);
 	f = fopen(filename, "a");
 	fprintf(f,"{\"event\":\"assoc\",\"time\":\"%s\",\"mac\",\"",time_str);
 	for (int i = 0; i < 6; ++i) {
@@ -2952,7 +3001,7 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 	  if (i<5)
 	    fprintf(f,":");
 	}
-	fprintf(f,"\",\"pmk\":\"%s\"}\n",encoded);
+	fprintf(f,"\",\"pmk\":\"%s\",\"vid\",%d}\n",encoded,vlan_id);
 	fclose(f);
 	os_free(encoded);
 

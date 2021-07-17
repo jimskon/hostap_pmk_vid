@@ -334,6 +334,7 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 				keyid = value;
 			} else if (!os_strcmp(name, "vlanid")) {
 				vlan_id = atoi(value);
+				printf("RGNets VID: %d\n",vlan_id);
 			} else if (!os_strcmp(name, "pmk")) {
 			   os_memcpy(pmk, value, 45);
 			  
@@ -346,6 +347,7 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 			}
 
 		}
+		
 		if (ret == -1)
 			break;
 		psk = os_zalloc(sizeof(*psk));
@@ -354,67 +356,68 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 			ret = -1;
 			break;
 		}
+		printf("PMK:%s\n",pmk);
+		// If the pmk is empty then use the normal psk processing
 		if (pmk[0] == '\0') {
-		if (!token)
-			token = "";
-		if (hwaddr_aton(token, addr)) {
-			wpa_printf(MSG_ERROR, "Invalid MAC address '%s' on "
-				   "line %d in '%s'", token, line, fname);
-			ret = -1;
-			break;
-		}
-
-		psk->type=0;
-		psk->vlan_id = vlan_id;
-		if (is_zero_ether_addr(addr))
-			psk->group = 1;
-		else
-			os_memcpy(psk->addr, addr, ETH_ALEN);
-
-		pos = str_token(buf, "", &context);
-		//printf("RGNets psk: %s\n",pos);
-		if (!pos) {
-			wpa_printf(MSG_ERROR, "No PSK on line %d in '%s'",
-				   line, fname);
-			os_free(psk);
-			ret = -1;
-			break;
-		}
-
-		ok = 0;
-		len = os_strlen(pos);
-		if (len == 64 && hexstr2bin(pos, psk->psk, PMK_LEN) == 0)
-			ok = 1;
-		else if (len >= 8 && len < 64) {
-			pbkdf2_sha1(pos, ssid->ssid, ssid->ssid_len,
-				    4096, psk->psk, PMK_LEN);
-			ok = 1;
-		}
-		if (!ok) {
-			wpa_printf(MSG_ERROR, "Invalid PSK '%s' on line %d in "
-				   "'%s'", pos, line, fname);
-			os_free(psk);
-			ret = -1;
-			break;
-		}
-
-		if (keyid) {
-			len = os_strlcpy(psk->keyid, keyid, sizeof(psk->keyid));
-			if ((size_t) len >= sizeof(psk->keyid)) {
-				wpa_printf(MSG_ERROR,
-					   "PSK keyid too long on line %d in '%s'",
-					   line, fname);
-				os_free(psk);
-				ret = -1;
-				break;
-			}
-		}
-		//printf("RGNets PSK added: type:%d, vlan: %d\n",psk->type,psk->vlan_id);
-		//rgnets_printf("RGNETS PMK",psk->psk,PMK_LEN);
+		  if (!token)
+		    token = "";
+		  if (hwaddr_aton(token, addr)) {
+		    wpa_printf(MSG_ERROR, "Invalid MAC address '%s' on "
+			       "line %d in '%s'", token, line, fname);
+		    ret = -1;
+		    break;
+		  }
+		  
+		  psk->type=0;
+		  psk->vlan_id = vlan_id;
+		  if (is_zero_ether_addr(addr))
+		    psk->group = 1;
+		  else
+		    os_memcpy(psk->addr, addr, ETH_ALEN);
+		  
+		  pos = str_token(buf, "", &context);
+		  if (!pos) {
+		    wpa_printf(MSG_ERROR, "No PSK on line %d in '%s'",
+			       line, fname);
+		    os_free(psk);
+		    ret = -1;
+		    break;
+		  }
+		  
+		  ok = 0;
+		  len = os_strlen(pos);
+		  if (len == 64 && hexstr2bin(pos, psk->psk, PMK_LEN) == 0)
+		    ok = 1;
+		  else if (len >= 8 && len < 64) {
+		    pbkdf2_sha1(pos, ssid->ssid, ssid->ssid_len,
+				4096, psk->psk, PMK_LEN);
+		    ok = 1;
+		  }
+		  if (!ok) {
+		    wpa_printf(MSG_ERROR, "Invalid PSK '%s' on line %d in "
+			       "'%s'", pos, line, fname);
+		    os_free(psk);
+		    ret = -1;
+		    break;
+		  }
+		  
+		  if (keyid) {
+		    len = os_strlcpy(psk->keyid, keyid, sizeof(psk->keyid));
+		    if ((size_t) len >= sizeof(psk->keyid)) {
+		      wpa_printf(MSG_ERROR,
+				 "PSK keyid too long on line %d in '%s'",
+				 line, fname);
+		      os_free(psk);
+		      ret = -1;
+		      break;
+		    }
+		  }
+		  printf("RGNets PSK added: vlan: %d\n",psk->vlan_id);
+		  rgnets_printf("RGNETS PMK",psk->psk,PMK_LEN);
+		  rgnets_printf("MAC",addr,6);
 		} else {
 		  // RGNets use a PMK
 		  int pmk_len = strlen(pmk);
-		  //printf("RGNets PMK: %s\n",pmk);
 		  if (pmk_len != 44) {
 		    wpa_printf(MSG_ERROR, "PMK invalid length, must be 44 charaters on line %d in '%s'",line,fname);
 		    return -1;
@@ -430,8 +433,8 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 		  os_memcpy(psk->psk, pmkbinary, pmkbinary_len);
 
 		  psk->vlan_id = vlan_id;
-		  //printf("RGNets PMK added: type:%d, vlan: %d\n",psk->type,psk->vlan_id);
-		  //rgnets_printf("RGNETS PMK",psk->psk,pmkbinary_len);
+		  printf("RGNets PMK added: type:%d, vlan: %d\n",psk->type,psk->vlan_id);
+		  rgnets_printf("RGNETS PMK",psk->psk,pmkbinary_len);
 		}
 		psk->next = ssid->wpa_psk;
 		ssid->wpa_psk = psk;

@@ -493,4 +493,18 @@ int wpa_auth_resend_group_m1(struct wpa_state_machine *sm,
 int wpa_auth_rekey_gtk(struct wpa_authenticator *wpa_auth);
 void wpa_auth_set_ptk_rekey_timer(struct wpa_state_machine *sm);
 
+/* RGnets for dynamic VID */
+#define ETHERTYPE_VLAN 0x8100
+#define ETHERTYPE_QINQ 0x88a8
+
+struct vid_mess {
+        uint8_t          be_haddr[ETH_ALEN];    // MAC address                   
+        uint32_t         be_proto : 16;               // protocol: either ETHERTYPE_VAN (0x8100) or ETHERTYPE_QINQ (0x88a8)                                                 
+        uint32_t         be_vid   : 12;               // VLAN id
+        uint32_t         be_flags :  4;               // flags - only one defined at
+                                                      //the moment (differentiate between static/dynamic entry)                                 
+        int              be_updat;                    // last update time (unit: system ticks)
+};
+
+
 #endif /* WPA_AUTH_H */
