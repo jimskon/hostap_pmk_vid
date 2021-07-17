@@ -188,15 +188,15 @@ CONFIG_DEBUG_LINUX_TRACING=y
 #CONFIG_NO_RADIUS=y
 
 # Remove support for VLANs
-#CONFIG_NO_VLAN=y
+CONFIG_NO_VLAN=y
 
 # Enable support for fully dynamic VLANs. This enables hostapd to
 # automatically create bridge and VLAN interfaces if necessary.
-CONFIG_FULL_DYNAMIC_VLAN=y
+#CONFIG_FULL_DYNAMIC_VLAN=y
 
 # Use netlink-based kernel API for VLAN operations instead of ioctl()
 # Note: This requires libnl 3.1 or newer.
-CONFIG_VLAN_NETLINK=y
+#CONFIG_VLAN_NETLINK=y
 
 # Remove support for dumping internal state through control interface commands
 # This can be used to reduce binary size at the cost of disabling a debugging
