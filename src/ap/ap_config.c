@@ -334,7 +334,7 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 				keyid = value;
 			} else if (!os_strcmp(name, "vlanid")) {
 				vlan_id = atoi(value);
-				printf("RGNets VID: %d\n",vlan_id);
+				//printf("RGNets VID: %d\n",vlan_id);
 			} else if (!os_strcmp(name, "pmk")) {
 			   os_memcpy(pmk, value, 45);
 			  
@@ -356,7 +356,7 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 			ret = -1;
 			break;
 		}
-		printf("PMK:%s\n",pmk);
+		//printf("PMK:%s\n",pmk);
 		// If the pmk is empty then use the normal psk processing
 		if (pmk[0] == '\0') {
 		  if (!token)
@@ -412,9 +412,9 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 		      break;
 		    }
 		  }
-		  printf("RGNets PSK added: vlan: %d\n",psk->vlan_id);
-		  rgnets_printf("RGNETS PMK",psk->psk,PMK_LEN);
-		  rgnets_printf("MAC",addr,6);
+		  //printf("RGNets PSK added: vlan: %d\n",psk->vlan_id);
+		  //rgnets_printf("RGNETS PMK",psk->psk,PMK_LEN);
+		  //rgnets_printf("MAC",addr,6);
 		} else {
 		  // RGNets use a PMK
 		  int pmk_len = strlen(pmk);
@@ -433,8 +433,8 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 		  os_memcpy(psk->psk, pmkbinary, pmkbinary_len);
 
 		  psk->vlan_id = vlan_id;
-		  printf("RGNets PMK added: type:%d, vlan: %d\n",psk->type,psk->vlan_id);
-		  rgnets_printf("RGNETS PMK",psk->psk,pmkbinary_len);
+		  //printf("RGNets PMK added: type:%d, vlan: %d\n",psk->type,psk->vlan_id);
+		  //rgnets_printf("RGNETS PMK",psk->psk,pmkbinary_len);
 		}
 		psk->next = ssid->wpa_psk;
 		ssid->wpa_psk = psk;

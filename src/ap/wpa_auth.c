@@ -181,7 +181,8 @@ static inline int wpa_auth_start_ampe(struct wpa_authenticator *wpa_auth,
 }
 #endif /* CONFIG_MESH */
 
-/* RGNets - send vid to bridge */
+#ifdef CONFIG_VLAN_BRIDGE
+* RGNets - send vid to bridge */
 #define BR_PORT 9000
 #define BR_ADDRESS "localhost"
 
@@ -199,7 +200,7 @@ void wpa_send_vid(const u8 *addr, uint32_t vid) {
     }
     
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_family = AF_UNIX;
     bcopy((char *)server->h_addr,
          (char *)&serv_addr.sin_addr.s_addr,
          server->h_length);
@@ -225,6 +226,8 @@ void wpa_send_vid(const u8 *addr, uint32_t vid) {
       }
       close(sockfd);
 }  
+#endif
+
 
 int wpa_auth_for_each_sta(struct wpa_authenticator *wpa_auth,
 			  int (*cb)(struct wpa_state_machine *sm, void *ctx),
@@ -1827,7 +1830,7 @@ int wpa_auth_sm_event(struct wpa_state_machine *sm, enum wpa_event event)
 	fclose(f);
 
 
-		printf("RGNETS DISASSOC!\n");
+	//printf("RGNETS DISASSOC!\n");
 #ifdef CONFIG_IEEE80211R_AP
 		os_memset(sm->PMK, 0, sizeof(sm->PMK));
 		sm->pmk_len = 0;
@@ -2154,7 +2157,7 @@ SM_STATE(WPA_PTK, INITPSK)
 	SM_ENTRY_MA(WPA_PTK, INITPSK, wpa_ptk);
 	psk = wpa_auth_get_psk(sm->wpa_auth, sm->addr, sm->p2p_dev_addr, NULL,
 			       &psk_len, NULL);
-	rgnets_printf("PSK",psk,psk_len);
+	//rgnets_printf("PSK",psk,psk_len);
 	if (psk) {
 		os_memcpy(sm->PMK, psk, psk_len);
 		sm->pmk_len = psk_len;
@@ -2988,12 +2991,17 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 	time_t mytime = time(NULL);
 	char * time_str = ctime(&mytime);
 	time_str[strlen(time_str)-1] = '\0';
-	printf("Current Time : %s\n", time_str);
+
 	// RGNets output connection log
 	char filename[]="/tmp/connections.log";
 	FILE *f;
+
+	// RGNets send the vid to the vlan bridge
+#ifdef CONFIG_VLAN_BRIDGE	
 	// Send vid to bridge
 	wpa_send_vid(sm->addr,vlan_id);
+#endif
+	
 	f = fopen(filename, "a");
 	fprintf(f,"{\"event\":\"assoc\",\"time\":\"%s\",\"mac\",\"",time_str);
 	for (int i = 0; i < 6; ++i) {
