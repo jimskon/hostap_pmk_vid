@@ -181,9 +181,10 @@ static inline int wpa_auth_start_ampe(struct wpa_authenticator *wpa_auth,
 }
 #endif /* CONFIG_MESH */
 
-#ifdef CONFIG_VLAN_BRIDGE
-* RGNets - send vid to bridge */
-#define BR_PORT 9000
+//#ifdef CONFIG_VLAN_BRIDGE
+
+/* RGNets - send vid to bridge */
+#define BR_PORT 7448
 #define BR_ADDRESS "localhost"
 
 void wpa_send_vid(const u8 *addr, uint32_t vid) {
@@ -200,7 +201,7 @@ void wpa_send_vid(const u8 *addr, uint32_t vid) {
     }
     
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_UNIX;
+    serv_addr.sin_family = AF_INET;
     bcopy((char *)server->h_addr,
          (char *)&serv_addr.sin_addr.s_addr,
          server->h_length);
@@ -224,9 +225,13 @@ void wpa_send_vid(const u8 *addr, uint32_t vid) {
       if (n < 0) {
         error("RGNets ERROR writing to bridge socket"); 
       }
+      printf("RGNets: Sent vlan id: %d\n",vid);
+      rgnets_printf("vlan MAC",addr,6);
+      
+      
       close(sockfd);
 }  
-#endif
+//#endif
 
 
 int wpa_auth_for_each_sta(struct wpa_authenticator *wpa_auth,
@@ -2980,7 +2985,7 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 			wpa_auth_psk_failure_report(sm->wpa_auth, sm->addr);
 		return;
 	}
-	//	printf("RGNets Found Key!\n");
+	//printf("RGNets Found Key! VLAN: %d\n",vlan_id);
 	//rgnets_printf("RGNets Found PMK:",pmk,pmk_len);
 	encoded = base64_encode(pmk, pmk_len,
 				&encoded_len);
@@ -2997,10 +3002,10 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 	FILE *f;
 
 	// RGNets send the vid to the vlan bridge
-#ifdef CONFIG_VLAN_BRIDGE	
+//#ifdef CONFIG_VLAN_BRIDGE	
 	// Send vid to bridge
 	wpa_send_vid(sm->addr,vlan_id);
-#endif
+//#endif
 	
 	f = fopen(filename, "a");
 	fprintf(f,"{\"event\":\"assoc\",\"time\":\"%s\",\"mac\",\"",time_str);
