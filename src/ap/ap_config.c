@@ -1271,6 +1271,7 @@ int hostapd_config_check(struct hostapd_config *conf, int full_config)
 {
 	size_t i;
 
+	printf("RGNets hostapd version 0.1 with PMK and local VLAN support\n");
 	if (full_config && conf->ieee80211d &&
 	    (!conf->country[0] || !conf->country[1])) {
 		wpa_printf(MSG_ERROR, "Cannot enable IEEE 802.11d without "

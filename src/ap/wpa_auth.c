@@ -37,6 +37,12 @@
 #include "base64.h" //For RGNets
 #include <time.h>
 
+// RGNets for wlan  bridge
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+
+
 #define STATE_MACHINE_DATA struct wpa_state_machine
 #define STATE_MACHINE_DEBUG_PREFIX "WPA"
 #define STATE_MACHINE_ADDR sm->addr
@@ -184,52 +190,34 @@ static inline int wpa_auth_start_ampe(struct wpa_authenticator *wpa_auth,
 //#ifdef CONFIG_VLAN_BRIDGE
 
 /* RGNets - send vid to bridge */
-#define BR_PORT 7448
-#define BR_ADDRESS "localhost"
 
 void wpa_send_vid(const u8 *addr, uint32_t vid) {
-    int sockfd, n;
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
     struct vid_mess aVid_mess;
-    char br_address[] = BR_ADDRESS;
-    int portno = BR_PORT;
-    server = gethostbyname(br_address);
-    if (server == NULL) {
-        fprintf(stderr,"RGNets ERROR, can't find bridge: %s\n",br_address);
-        return;
-    }
+    char wlan_fifo[] = "/tmp/wlanbridgefifo";
+    int fifo_d;
+
+    printf("Sending vlan: %d\n",vid);
+    mkfifo(wlan_fifo, 0666);
+    printf("Make fifo\n");
     
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr,
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
+    fifo_d = open(wlan_fifo,O_WRONLY);
+    printf("open fifo\n");
+    
+    bzero((void *)&aVid_mess,sizeof(struct vid_mess));
+    aVid_mess.be_vid = vid;
+    memcpy(aVid_mess.be_haddr,addr,6);
 
-    serv_addr.sin_port = htons(portno);
+    int n = write(fifo_d,&aVid_mess,sizeof(struct vid_mess));
+    printf("write fifo\n");
 
-      sockfd = socket(AF_INET, SOCK_STREAM, 0);
-      if (sockfd < 0) {
-        fprintf(stderr,"RGNets ERROR opening bridge socket");
-	return;
-      }
-      if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-	fprintf(stderr,"ERROR connecting");
-	return;
-      }
-      bzero((void *)&aVid_mess,sizeof(struct vid_mess));
-      aVid_mess.be_vid = vid;
-      memcpy(aVid_mess.be_haddr,addr,6);
-
-      n = write(sockfd,&aVid_mess,sizeof(struct vid_mess));
-      if (n < 0) {
-        error("RGNets ERROR writing to bridge socket"); 
-      }
-      printf("RGNets: Sent vlan id: %d\n",vid);
-      rgnets_printf("vlan MAC",addr,6);
+    if (n < 0) {
+      printf("RGNets ERROR writing to bridge socket/n"); 
+    }
+    printf("RGNets: Sent vlan id: %d\n",vid);
+    rgnets_printf("vlan MAC",addr,6);
       
       
-      close(sockfd);
+    close(fifo_d);
 }  
 //#endif
 
@@ -2985,7 +2973,7 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 			wpa_auth_psk_failure_report(sm->wpa_auth, sm->addr);
 		return;
 	}
-	//printf("RGNets Found Key! VLAN: %d\n",vlan_id);
+	printf("RGNets Found Key! VLAN: %d\n",vlan_id);
 	//rgnets_printf("RGNets Found PMK:",pmk,pmk_len);
 	encoded = base64_encode(pmk, pmk_len,
 				&encoded_len);
