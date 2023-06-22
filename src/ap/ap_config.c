@@ -319,7 +319,7 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 
 		context = NULL;
 		keyid = NULL;
-		pmk[0]='\0';  // RGNets start with empty PMK
+		pmk[0]='\0';  // Skon start with empty PMK
 		while ((token = str_token(buf, " ", &context))) {
 			if (!os_strchr(token, '='))
 				break;
@@ -334,7 +334,7 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 				keyid = value;
 			} else if (!os_strcmp(name, "vlanid")) {
 				vlan_id = atoi(value);
-				//printf("RGNets VID: %d\n",vlan_id);
+				//printf("Skon VID: %d\n",vlan_id);
 			} else if (!os_strcmp(name, "pmk")) {
 			   os_memcpy(pmk, value, 45);
 			  
@@ -412,11 +412,11 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 		      break;
 		    }
 		  }
-		  //printf("RGNets PSK added: vlan: %d\n",psk->vlan_id);
-		  //rgnets_printf("RGNETS PMK",psk->psk,PMK_LEN);
-		  //rgnets_printf("MAC",addr,6);
+		  //printf("Skon PSK added: vlan: %d\n",psk->vlan_id);
+		  //skon_printf("Skon PMK",psk->psk,PMK_LEN);
+		  //skon_printf("MAC",addr,6);
 		} else {
-		  // RGNets use a PMK
+		  // Skon use a PMK
 		  int pmk_len = strlen(pmk);
 		  if (pmk_len != 44) {
 		    wpa_printf(MSG_ERROR, "PMK invalid length, must be 44 charaters on line %d in '%s'",line,fname);
@@ -433,8 +433,8 @@ static int hostapd_config_read_wpa_psk(const char *fname,
 		  os_memcpy(psk->psk, pmkbinary, pmkbinary_len);
 
 		  psk->vlan_id = vlan_id;
-		  //printf("RGNets PMK added: type:%d, vlan: %d\n",psk->type,psk->vlan_id);
-		  //rgnets_printf("RGNETS PMK",psk->psk,pmkbinary_len);
+		  //printf("Skon PMK added: type:%d, vlan: %d\n",psk->type,psk->vlan_id);
+		  //skon_printf("Skon PMK",psk->psk,pmkbinary_len);
 		}
 		psk->next = ssid->wpa_psk;
 		ssid->wpa_psk = psk;
@@ -1042,7 +1042,7 @@ const u8 * hostapd_get_psk(const struct hostapd_bss_config *conf,
 	}
 
 	for (psk = conf->ssid.wpa_psk; psk != NULL; psk = psk->next) {
-	  //	  rgnets_printf("PSK SCAN",psk->psk,32);
+	  //	  skon_printf("PSK SCAN",psk->psk,32);
 		if (next_ok &&
 		    (psk->group ||
 		     (psk->type == 1) ||
@@ -1271,7 +1271,7 @@ int hostapd_config_check(struct hostapd_config *conf, int full_config)
 {
 	size_t i;
 
-	printf("RGNets hostapd version 0.1 with PMK and local VLAN support\n");
+	printf("Skon hostapd version 0.1 with PMK and local VLAN support\n");
 	if (full_config && conf->ieee80211d &&
 	    (!conf->country[0] || !conf->country[1])) {
 		wpa_printf(MSG_ERROR, "Cannot enable IEEE 802.11d without "

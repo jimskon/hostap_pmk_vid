@@ -22,7 +22,7 @@
 static int vlan_if_add(struct hostapd_data *hapd, struct hostapd_vlan *vlan,
 		       int existsok)
 {
-  //printf("RGNets: vlan_if_add %s, %s, %d, %d\n",vlan->ifname,vlan->bridge,vlan->vlan_id,vlan->dynamic_vlan);
+  //printf("Skon: vlan_if_add %s, %s, %d, %d\n",vlan->ifname,vlan->bridge,vlan->vlan_id,vlan->dynamic_vlan);
   
 	int ret, i;
 

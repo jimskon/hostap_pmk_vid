@@ -194,7 +194,7 @@ void wpa_debug_close_linux_tracing(void)
 
 #endif /* CONFIG_DEBUG_LINUX_TRACING */
 
-void rgnets_printf(char * tag, const void* data, size_t size) {
+void skon_printf(char * tag, const void* data, size_t size) {
 	char ascii[17];
 	size_t i, j;
 	ascii[16] = '\0';

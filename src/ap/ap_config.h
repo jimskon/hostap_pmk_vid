@@ -104,7 +104,7 @@ struct hostapd_ssid {
 	struct hostapd_wpa_psk *wpa_psk;
 	char *wpa_passphrase;
 	char *wpa_psk_file;
-        char *connection_log_file;  // RGNets
+        char *connection_log_file;  // Skon
   
 	struct hostapd_wep_keys wep;
 
@@ -155,7 +155,7 @@ struct hostapd_sta_wpa_psk_short {
 struct hostapd_wpa_psk {
 	struct hostapd_wpa_psk *next;
 	int group;
-        int type;  // RGNets type=0 psk, type=1 pmk.
+        int type;  // Skon type=0 psk, type=1 pmk.
 	char keyid[KEYID_LEN];
 	u8 psk[PMK_LEN];
 	u8 addr[ETH_ALEN];

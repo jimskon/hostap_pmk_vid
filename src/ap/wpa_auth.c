@@ -34,10 +34,10 @@
 #include "pmksa_cache_auth.h"
 #include "wpa_auth_i.h"
 #include "wpa_auth_ie.h"
-#include "base64.h" //For RGNets
+#include "base64.h" //For Skon
 #include <time.h>
 
-// RGNets for wlan  bridge
+// Skon for wlan bridge
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -189,7 +189,7 @@ static inline int wpa_auth_start_ampe(struct wpa_authenticator *wpa_auth,
 
 //#ifdef CONFIG_VLAN_BRIDGE
 
-/* RGNets - send vid to bridge */
+/* Skon - send vid to bridge */
 
 void wpa_send_vid(const u8 *addr, uint32_t vid) {
     struct vid_mess aVid_mess;
@@ -211,10 +211,10 @@ void wpa_send_vid(const u8 *addr, uint32_t vid) {
     printf("write fifo\n");
 
     if (n < 0) {
-      printf("RGNets ERROR writing to bridge socket/n"); 
+      printf("Skon ERROR writing to bridge socket/n"); 
     }
-    printf("RGNets: Sent vlan id: %d\n",vid);
-    rgnets_printf("vlan MAC",addr,6);
+    printf("Skon: Sent vlan id: %d\n",vid);
+    skon_printf("vlan MAC",addr,6);
       
       
     close(fifo_d);
@@ -1063,15 +1063,15 @@ void wpa_receive(struct wpa_authenticator *wpa_auth,
 		}
 	}
 
-	//printf("RGNets WPA data\n");
-	//rgnets_printf("Data",data,data_len);	
-	//rgnets_printf("AP MAC",wpa_auth->addr,6);
-	//rgnets_printf("STA MAC",sm->addr,6);
-	//rgnets_printf("ANonce",sm->ANonce,WPA_NONCE_LEN);
-	//	rgnets_printf("SNonce1",sm->SNonce,WPA_NONCE_LEN);
-	//rgnets_printf("SNonce",key->key_nonce,WPA_NONCE_LEN);
-	//rgnets_printf("MIC",mic,mic_len);
-	//rgnets_printf("PMK",sm->PMK,sm->pmk_len);
+	//printf("Skon WPA data\n");
+	//skon_printf("Data",data,data_len);	
+	//skon_printf("AP MAC",wpa_auth->addr,6);
+	//skon_printf("STA MAC",sm->addr,6);
+	//skon_printf("ANonce",sm->ANonce,WPA_NONCE_LEN);
+	//	skon_printf("SNonce1",sm->SNonce,WPA_NONCE_LEN);
+	//skon_printf("SNonce",key->key_nonce,WPA_NONCE_LEN);
+	//skon_printf("MIC",mic,mic_len);
+	//skon_printf("PMK",sm->PMK,sm->pmk_len);
 
 	//wpa_hexdump(MSG_DEBUG, "WPA: Received Key Nonce", key->key_nonce,
 	//	    WPA_NONCE_LEN);
@@ -1805,11 +1805,11 @@ int wpa_auth_sm_event(struct wpa_state_machine *sm, enum wpa_event event)
 	case WPA_DEAUTH:
 	case WPA_DISASSOC:
 		sm->DeauthenticationRequest = TRUE;
-		// RGNets - log disassociation event
+		// Skon - log disassociation event
 		time_t mytime = time(NULL);
 		char * time_str = ctime(&mytime);
 		time_str[strlen(time_str)-1] = '\0';
-		// RGNets output connection log
+		// Skon output connection log
 		char filename[]="/tmp/connections.log";
 		FILE *f;
 		f = fopen(filename, "a");
@@ -1823,7 +1823,7 @@ int wpa_auth_sm_event(struct wpa_state_machine *sm, enum wpa_event event)
 	fclose(f);
 
 
-	//printf("RGNETS DISASSOC!\n");
+	//printf("SKON DISASSOC!\n");
 #ifdef CONFIG_IEEE80211R_AP
 		os_memset(sm->PMK, 0, sizeof(sm->PMK));
 		sm->pmk_len = 0;
@@ -2150,7 +2150,7 @@ SM_STATE(WPA_PTK, INITPSK)
 	SM_ENTRY_MA(WPA_PTK, INITPSK, wpa_ptk);
 	psk = wpa_auth_get_psk(sm->wpa_auth, sm->addr, sm->p2p_dev_addr, NULL,
 			       &psk_len, NULL);
-	//rgnets_printf("PSK",psk,psk_len);
+	//skon_printf("PSK",psk,psk_len);
 	if (psk) {
 		os_memcpy(sm->PMK, psk, psk_len);
 		sm->pmk_len = psk_len;
@@ -2898,7 +2898,7 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 	struct wpa_eapol_key *key;
 	struct wpa_eapol_ie_parse kde;
 	int vlan_id = 0;
-	unsigned char *encoded; // Added for RGNets
+	unsigned char *encoded; // Added for Skon
 	size_t encoded_len;
 		
 	SM_ENTRY_MA(WPA_PTK, PTKCALCNEGOTIATING, wpa_ptk);
@@ -2973,23 +2973,23 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 			wpa_auth_psk_failure_report(sm->wpa_auth, sm->addr);
 		return;
 	}
-	printf("RGNets Found Key! VLAN: %d\n",vlan_id);
-	//rgnets_printf("RGNets Found PMK:",pmk,pmk_len);
+	printf("Skon Found Key! VLAN: %d\n",vlan_id);
+	//skon_printf("Skon Found PMK:",pmk,pmk_len);
 	encoded = base64_encode(pmk, pmk_len,
 				&encoded_len);
 	encoded[strlen(encoded)-1] = '\0';
 	//printf("PMK: %s\n",encoded);
-	//rgnets_printf("MAC",sm->addr,6);
+	//skon_printf("MAC",sm->addr,6);
 	//printf("Log file: /n",sm->wpa_auth->conf.connection_log_file);
 	time_t mytime = time(NULL);
 	char * time_str = ctime(&mytime);
 	time_str[strlen(time_str)-1] = '\0';
 
-	// RGNets output connection log
+	// Skon output connection log
 	char filename[]="/tmp/connections.log";
 	FILE *f;
 
-	// RGNets send the vid to the vlan bridge
+	// Skon send the vid to the vlan bridge
 //#ifdef CONFIG_VLAN_BRIDGE	
 	// Send vid to bridge
 	wpa_send_vid(sm->addr,vlan_id);

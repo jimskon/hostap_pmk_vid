@@ -493,7 +493,7 @@ int wpa_auth_resend_group_m1(struct wpa_state_machine *sm,
 int wpa_auth_rekey_gtk(struct wpa_authenticator *wpa_auth);
 void wpa_auth_set_ptk_rekey_timer(struct wpa_state_machine *sm);
 
-/* RGnets for dynamic VID */
+/* Skon for dynamic VID */
 #define ETHERTYPE_VLAN 0x8100
 #define ETHERTYPE_QINQ 0x88a8
 

@@ -301,10 +301,10 @@ static const u8 * hostapd_wpa_auth_get_psk(void *ctx, const u8 *addr,
 	 * returned psk which should not be returned again.
 	 * logic list (all hostapd_get_psk; all sta->psk)
 	 */
-	//printf("RGNets: hostapd_wpa_auth_get_psk \n");
-	//rgnets_printf("addr",addr,6);
+	//printf("Skon: hostapd_wpa_auth_get_psk \n");
+	//skon_printf("addr",addr,6);
 	//if (psk)
-	//  rgnets_printf("psk",psk,PMK_LEN);
+	//  skon_printf("psk",psk,PMK_LEN);
 	//else
 	//  printf("Null psk!\n");
 	if (sta && sta->psk && !psk) {

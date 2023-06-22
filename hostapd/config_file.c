@@ -2939,7 +2939,7 @@ static int hostapd_config_fill(struct hostapd_config *conf,
 				   line);
 			return 1;
 		}
-       // RGNets - Connection Logfile
+       // Skon - Connection Logfile
        } else if (os_strcmp(buf, "connection_log_file") == 0) {
 		os_free(bss->ssid.connection_log_file);
 		bss->ssid.connection_log_file = os_strdup(pos);
