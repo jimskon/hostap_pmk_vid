@@ -1813,7 +1813,7 @@ int wpa_auth_sm_event(struct wpa_state_machine *sm, enum wpa_event event)
 		char filename[]="/tmp/connections.log";
 		FILE *f;
 		f = fopen(filename, "a");
-		fprintf(f,"{\"event\":\"disassoc\",\"time\":\"%s\",\"mac\",\"",time_str);
+		fprintf(f,"{\"event\":\"disassoc\",\"time\":\"%s\",\"mac\":\"",time_str);
 		for (int i = 0; i < 6; ++i) {
 		  fprintf(f,"%02X", ((u8*)sm->addr[i]));
 		  if (i<5)
@@ -2996,13 +2996,13 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
 //#endif
 	
 	f = fopen(filename, "a");
-	fprintf(f,"{\"event\":\"assoc\",\"time\":\"%s\",\"mac\",\"",time_str);
+	fprintf(f,"{\"event\":\"assoc\",\"time\":\"%s\",\"mac\":\"",time_str);
 	for (int i = 0; i < 6; ++i) {
 	  fprintf(f,"%02X", ((unsigned char*)sm->addr[i]));
 	  if (i<5)
 	    fprintf(f,":");
 	}
-	fprintf(f,"\",\"pmk\":\"%s\",\"vid\",%d}\n",encoded,vlan_id);
+	fprintf(f,"\",\"pmk\":\"%s\",\"vid\":%d}\n",encoded,vlan_id);
 	fclose(f);
 	os_free(encoded);
 
